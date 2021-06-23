@@ -70,7 +70,7 @@ class PinFieldAutoFill extends StatefulWidget {
     this.currentCode,
     this.autofocus = false,
     this.codeLength = 6,
-    this.brightness,
+    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
@@ -216,7 +216,7 @@ class PhoneFieldHint extends StatelessWidget {
     this.decoration,
     this.autofocus = false,
     this.focusNode,
-    this.brightness,
+    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
