@@ -55,6 +55,7 @@ class PinFieldAutoFill extends StatefulWidget {
   final FocusNode focusNode;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
+  final Brightness brightness;
 
   const PinFieldAutoFill({
     Key key,
@@ -69,6 +70,7 @@ class PinFieldAutoFill extends StatefulWidget {
     this.currentCode,
     this.autofocus = false,
     this.codeLength = 6,
+    this.brightness,
   }) : super(key: key);
 
   @override
@@ -97,6 +99,7 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
       controller: controller,
       textInputAction: widget.textInputAction,
       onSubmit: widget.onCodeSubmitted,
+      brightness:widget.brightness,
       cursor: Cursor(
         width: 1,
         color: Colors.black,
@@ -167,6 +170,7 @@ class PhoneFormFieldHint extends StatelessWidget {
   final FormFieldValidator validator;
   final InputDecoration decoration;
   final TextField child;
+  final Brightness brightness;
 
   const PhoneFormFieldHint({
     Key key,
@@ -177,6 +181,7 @@ class PhoneFormFieldHint extends StatelessWidget {
     this.decoration,
     this.autofocus = false,
     this.focusNode,
+    this.brightness
   }) : super(key: key);
 
   @override
@@ -189,6 +194,7 @@ class PhoneFormFieldHint extends StatelessWidget {
         decoration: decoration,
         autofocus: autofocus,
         focusNode: focusNode,
+        brightness: brightness,
         isFormWidget: true);
   }
 }
@@ -200,6 +206,7 @@ class PhoneFieldHint extends StatelessWidget {
   final List<TextInputFormatter> inputFormatters;
   final InputDecoration decoration;
   final TextField child;
+  final Brightness brightness;
 
   const PhoneFieldHint({
     Key key,
@@ -209,6 +216,7 @@ class PhoneFieldHint extends StatelessWidget {
     this.decoration,
     this.autofocus = false,
     this.focusNode,
+    this.brightness,
   }) : super(key: key);
 
   @override
@@ -219,6 +227,7 @@ class PhoneFieldHint extends StatelessWidget {
         decoration: decoration,
         autofocus: autofocus,
         focusNode: focusNode,
+        brightness: brightness,
         isFormWidget: false);
   }
 }
@@ -232,6 +241,7 @@ class _PhoneFieldHint extends StatefulWidget {
   final bool isFormWidget;
   final InputDecoration decoration;
   final TextField child;
+  final Brightness brightness;
 
   const _PhoneFieldHint({
     Key key,
@@ -243,6 +253,7 @@ class _PhoneFieldHint extends StatefulWidget {
     this.decoration,
     this.autofocus = false,
     this.focusNode,
+    this.brightness,
   }) : super(key: key);
 
   @override
@@ -291,7 +302,7 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
       ) : null,
     );
 
-    return widget.child ?? _createField(widget.isFormWidget, decoration, widget.validator);
+    return widget.child ?? _createField(widget.isFormWidget, decoration, widget.validator,widget.brightness);
   }
 
   @override
@@ -306,9 +317,9 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
     super.dispose();
   }
 
-  Widget _createField(bool isFormWidget, InputDecoration decoration, FormFieldValidator validator) {
+  Widget _createField(bool isFormWidget, InputDecoration decoration, FormFieldValidator validator,Brightness brightness) {
     return isFormWidget
-        ? _createTextFormField(decoration, validator)
+        ? _createTextFormField(decoration, validator,brightness)
         : _createTextField(decoration);
   }
 
@@ -324,7 +335,7 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
     );
   }
 
-  Widget _createTextFormField(InputDecoration decoration, FormFieldValidator validator) {
+  Widget _createTextFormField(InputDecoration decoration, FormFieldValidator validator,Brightness brightness) {
     return TextFormField(
       validator: validator,
       autofocus: widget.autofocus,
@@ -334,6 +345,7 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
       decoration: decoration,
       controller: _controller,
       keyboardType: TextInputType.phone,
+      keyboardAppearance: brightness,
     );
   }
 
