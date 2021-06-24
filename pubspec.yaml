@@ -8,10 +8,11 @@ environment:
   flutter: ">=1.10.0"
 
 dependencies:
-  pin_input_text_field: ">=3.1.2 <4.0.0"
-    #git:
-    #  url: https://github.com/TinoGuo/pin_input_text_field
-    #  ref: dev
+  pin_input_text_field:
+    git:
+      url: https://github.com/NaderRaida/pin_input_text_field_clone.git
+      ref: 1.0.0
+
   flutter:
     sdk: flutter
 
