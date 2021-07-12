@@ -375,6 +375,7 @@ class TextFieldPinAutoFill extends StatefulWidget {
   final InputDecoration decoration;
   final bool obscureText;
   final TextStyle style;
+  final Brightness brightness;
 
   const TextFieldPinAutoFill({
     Key key,
@@ -387,6 +388,7 @@ class TextFieldPinAutoFill extends StatefulWidget {
     this.currentCode,
     this.autofocus = false,
     this.codeLength = 6,
+    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
@@ -436,6 +438,7 @@ class _TextFieldPinAutoFillState extends State<TextFieldPinAutoFill> with CodeAu
       keyboardType: TextInputType.numberWithOptions(),
       controller: _textController,
       obscureText: widget.obscureText,
+      keyboardAppearance: widget.brightness,
     );
   }
 

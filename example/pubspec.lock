@@ -91,9 +91,11 @@ packages:
   pin_input_text_field:
     dependency: transitive
     description:
-      name: pin_input_text_field
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: "1.0.0"
+      resolved-ref: a3d4b3d862b7f31ae28d67c63f3c1a4b51ba81be
+      url: "https://github.com/NaderRaida/pin_input_text_field_clone.git"
+    source: git
     version: "3.3.1"
   sky_engine:
     dependency: transitive
