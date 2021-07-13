@@ -4,14 +4,14 @@ version: 1.3.1
 homepage: https://github.com/jaumard/sms_autofill
 
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.10.0"
 
 dependencies:
   pin_input_text_field:
     git:
       url: https://github.com/NaderRaida/pin_input_text_field_clone.git
-      ref: 1.0.0
+      ref: 2.0.1
 
   flutter:
     sdk: flutter

@@ -8,25 +8,26 @@ import 'package:pin_input_text_field/pin_input_text_field.dart';
 export 'package:pin_input_text_field/pin_input_text_field.dart';
 
 class SmsAutoFill {
-  static SmsAutoFill _singleton;
+  static SmsAutoFill? _singleton;
   static const MethodChannel _channel = const MethodChannel('sms_autofill');
   final StreamController<String> _code = StreamController.broadcast();
 
   factory SmsAutoFill() => _singleton ??= SmsAutoFill._();
 
   SmsAutoFill._() {
-    _channel.setMethodCallHandler((method) {
-      if (method.method == 'smscode') {
-        _code.add(method.arguments);
-      }
-      return null;
-    });
+    _channel.setMethodCallHandler(_didReceive);
+  }
+
+  Future<void> _didReceive(MethodCall method) async {
+    if (method.method == 'smscode') {
+      _code.add(method.arguments);
+    }
   }
 
   Stream<String> get code => _code.stream;
 
-  Future<String> get hint async {
-    final String version = await _channel.invokeMethod('requestPhoneHint');
+  Future<String?> get hint async {
+    final String? version = await _channel.invokeMethod('requestPhoneHint');
     return version;
   }
 
@@ -46,31 +47,31 @@ class SmsAutoFill {
 
 class PinFieldAutoFill extends StatefulWidget {
   final int codeLength;
-  final bool autofocus;
-  final TextEditingController controller;
-  final String currentCode;
-  final Function(String) onCodeSubmitted;
-  final Function(String) onCodeChanged;
+  final bool autoFocus;
+  final TextEditingController? controller;
+  final String? currentCode;
+  final Function(String)? onCodeSubmitted;
+  final Function(String?)? onCodeChanged;
   final PinDecoration decoration;
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
+  final Cursor? cursor;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
-  final Brightness brightness;
 
   const PinFieldAutoFill({
-    Key key,
+    Key? key,
     this.keyboardType = const TextInputType.numberWithOptions(),
     this.textInputAction = TextInputAction.done,
     this.focusNode,
+    this.cursor,
     this.controller,
     this.decoration = const UnderlineDecoration(
         colorBuilder: FixedColorBuilder(Colors.black), textStyle: TextStyle(color: Colors.black)),
     this.onCodeSubmitted,
     this.onCodeChanged,
     this.currentCode,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.codeLength = 6,
-    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
@@ -80,8 +81,8 @@ class PinFieldAutoFill extends StatefulWidget {
 }
 
 class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
-  TextEditingController controller;
-  bool _shouldDisposeController;
+  late TextEditingController controller;
+  bool _shouldDisposeController=false;
 
   @override
   Widget build(BuildContext context) {
@@ -91,21 +92,15 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
       focusNode: widget.focusNode,
       enableInteractiveSelection: true,
       autocorrect: false,
+      cursor: widget.cursor,
       autofillHints: const <String>[AutofillHints.oneTimeCode],
       textCapitalization: TextCapitalization.none,
       toolbarOptions: ToolbarOptions(paste: true),
       keyboardType: widget.keyboardType,
-      autoFocus: widget.autofocus,
+      autoFocus: widget.autoFocus,
       controller: controller,
       textInputAction: widget.textInputAction,
       onSubmit: widget.onCodeSubmitted,
-      brightness:widget.brightness,
-      cursor: Cursor(
-        width: 1,
-        color: Colors.black,
-        radius: Radius.circular(1),
-        enabled: true,
-      ),
     );
   }
 
@@ -119,7 +114,7 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
       if (controller.text != code) {
         code = controller.text;
         if (widget.onCodeChanged != null) {
-          widget.onCodeChanged(code);
+          widget.onCodeChanged!(code);
         }
       }
     });
@@ -131,7 +126,7 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
   void didUpdateWidget(PinFieldAutoFill oldWidget) {
     if (widget.controller != null && widget.controller != controller) {
       controller.dispose();
-      controller = widget.controller;
+      controller = widget.controller!;
     }
 
     if (widget.currentCode != oldWidget.currentCode || widget.currentCode != code) {
@@ -146,7 +141,7 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
     if (controller.text != code) {
       controller.value = TextEditingValue(text: code ?? '');
       if (widget.onCodeChanged != null) {
-        widget.onCodeChanged(code ?? '');
+        widget.onCodeChanged!(code ?? '');
       }
     }
   }
@@ -163,25 +158,23 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
 }
 
 class PhoneFormFieldHint extends StatelessWidget {
-  final bool autofocus;
-  final FocusNode focusNode;
-  final TextEditingController controller;
-  final List<TextInputFormatter> inputFormatters;
-  final FormFieldValidator validator;
-  final InputDecoration decoration;
-  final TextField child;
-  final Brightness brightness;
+  final bool autoFocus;
+  final FocusNode? focusNode;
+  final TextEditingController? controller;
+  final List<TextInputFormatter>? inputFormatters;
+  final FormFieldValidator? validator;
+  final InputDecoration? decoration;
+  final TextField? child;
 
   const PhoneFormFieldHint({
-    Key key,
+    Key? key,
     this.child,
     this.controller,
     this.inputFormatters,
     this.validator,
     this.decoration,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.focusNode,
-    this.brightness
   }) : super(key: key);
 
   @override
@@ -192,31 +185,28 @@ class PhoneFormFieldHint extends StatelessWidget {
         controller: controller,
         validator: validator,
         decoration: decoration,
-        autofocus: autofocus,
+        autoFocus: autoFocus,
         focusNode: focusNode,
-        brightness: brightness,
         isFormWidget: true);
   }
 }
 
 class PhoneFieldHint extends StatelessWidget {
-  final bool autofocus;
-  final FocusNode focusNode;
-  final TextEditingController controller;
-  final List<TextInputFormatter> inputFormatters;
-  final InputDecoration decoration;
-  final TextField child;
-  final Brightness brightness;
+  final bool autoFocus;
+  final FocusNode? focusNode;
+  final TextEditingController? controller;
+  final List<TextInputFormatter>? inputFormatters;
+  final InputDecoration? decoration;
+  final TextField? child;
 
   const PhoneFieldHint({
-    Key key,
+    Key? key,
     this.child,
     this.controller,
     this.inputFormatters,
     this.decoration,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.focusNode,
-    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
@@ -224,36 +214,34 @@ class PhoneFieldHint extends StatelessWidget {
     return _PhoneFieldHint(key: key,
         child: child,
         inputFormatters: inputFormatters,
+        controller: controller,
         decoration: decoration,
-        autofocus: autofocus,
+        autoFocus: autoFocus,
         focusNode: focusNode,
-        brightness: brightness,
         isFormWidget: false);
   }
 }
 
 class _PhoneFieldHint extends StatefulWidget {
-  final bool autofocus;
-  final FocusNode focusNode;
-  final TextEditingController controller;
-  final List<TextInputFormatter> inputFormatters;
-  final FormFieldValidator validator;
+  final bool autoFocus;
+  final FocusNode? focusNode;
+  final TextEditingController? controller;
+  final List<TextInputFormatter>? inputFormatters;
+  final FormFieldValidator? validator;
   final bool isFormWidget;
-  final InputDecoration decoration;
-  final TextField child;
-  final Brightness brightness;
+  final InputDecoration? decoration;
+  final TextField? child;
 
   const _PhoneFieldHint({
-    Key key,
+    Key? key,
     this.child,
     this.controller,
     this.inputFormatters,
     this.validator,
     this.isFormWidget = false,
     this.decoration,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.focusNode,
-    this.brightness,
   }) : super(key: key);
 
   @override
@@ -264,9 +252,9 @@ class _PhoneFieldHint extends StatefulWidget {
 
 class _PhoneFieldHintState extends State<_PhoneFieldHint> {
   final SmsAutoFill _autoFill = SmsAutoFill();
-  TextEditingController _controller;
-  List<TextInputFormatter> _inputFormatters;
-  FocusNode _focusNode;
+  late TextEditingController _controller;
+  late List<TextInputFormatter> _inputFormatters;
+  late FocusNode _focusNode;
   bool _hintShown = false;
   bool _isUsingInternalController = false;
   bool _isUsingInternalFocusNode = false;
@@ -302,7 +290,7 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
       ) : null,
     );
 
-    return widget.child ?? _createField(widget.isFormWidget, decoration, widget.validator,widget.brightness);
+    return widget.child ?? _createField(widget.isFormWidget, decoration, widget.validator);
   }
 
   @override
@@ -317,15 +305,15 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
     super.dispose();
   }
 
-  Widget _createField(bool isFormWidget, InputDecoration decoration, FormFieldValidator validator,Brightness brightness) {
+  Widget _createField(bool isFormWidget, InputDecoration decoration, FormFieldValidator? validator) {
     return isFormWidget
-        ? _createTextFormField(decoration, validator,brightness)
+        ? _createTextFormField(decoration, validator)
         : _createTextField(decoration);
   }
 
   Widget _createTextField(InputDecoration decoration) {
     return TextField(
-      autofocus: widget.autofocus,
+      autofocus: widget.autoFocus,
       focusNode: _focusNode,
       autofillHints: [AutofillHints.telephoneNumber],
       inputFormatters: _inputFormatters,
@@ -335,22 +323,21 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
     );
   }
 
-  Widget _createTextFormField(InputDecoration decoration, FormFieldValidator validator,Brightness brightness) {
+  Widget _createTextFormField(InputDecoration decoration, FormFieldValidator? validator) {
     return TextFormField(
       validator: validator,
-      autofocus: widget.autofocus,
+      autofocus: widget.autoFocus,
       focusNode: _focusNode,
       autofillHints: [AutofillHints.telephoneNumber],
       inputFormatters: _inputFormatters,
       decoration: decoration,
       controller: _controller,
       keyboardType: TextInputType.phone,
-      keyboardAppearance: brightness,
     );
   }
 
   Future<void> _askPhoneHint() async {
-    String hint = await _autoFill.hint;
+    String? hint = await _autoFill.hint;
     _controller.value = TextEditingValue(text: hint ?? '');
   }
 
@@ -367,18 +354,18 @@ class _PhoneFieldHintState extends State<_PhoneFieldHint> {
 
 class TextFieldPinAutoFill extends StatefulWidget {
   final int codeLength;
-  final bool autofocus;
-  final FocusNode focusNode;
-  final String currentCode;
-  final Function(String) onCodeSubmitted;
-  final Function(String) onCodeChanged;
+  final bool autoFocus;
+  final FocusNode? focusNode;
+  final String? currentCode;
+  final Function(String)? onCodeSubmitted;
+  final Function(String)? onCodeChanged;
   final InputDecoration decoration;
   final bool obscureText;
-  final TextStyle style;
+  final TextStyle? style;
   final Brightness brightness;
 
   const TextFieldPinAutoFill({
-    Key key,
+    Key? key,
     this.focusNode,
     this.obscureText = false,
     this.onCodeSubmitted,
@@ -386,7 +373,7 @@ class TextFieldPinAutoFill extends StatefulWidget {
     this.onCodeChanged,
     this.decoration = const InputDecoration(),
     this.currentCode,
-    this.autofocus = false,
+    this.autoFocus = false,
     this.codeLength = 6,
     this.brightness = Brightness.light,
   }) : super(key: key);
@@ -399,8 +386,8 @@ class TextFieldPinAutoFill extends StatefulWidget {
 
 mixin CodeAutoFill {
   final SmsAutoFill _autoFill = SmsAutoFill();
-  String code;
-  StreamSubscription _subscription;
+  String? code;
+  StreamSubscription? _subscription;
 
   void listenForCode() {
     _subscription = _autoFill.code.listen((code) {
@@ -410,7 +397,7 @@ mixin CodeAutoFill {
     _autoFill.listenForCode;
   }
 
-  Future<void> cancel() {
+  Future<void> cancel() async {
     return _subscription?.cancel();
   }
 
@@ -427,7 +414,7 @@ class _TextFieldPinAutoFillState extends State<TextFieldPinAutoFill> with CodeAu
   @override
   Widget build(BuildContext context) {
     return TextField(
-      autofocus: widget.autofocus,
+      autofocus: widget.autoFocus,
       focusNode: widget.focusNode,
       maxLength: widget.codeLength,
       decoration: widget.decoration,
@@ -455,7 +442,7 @@ class _TextFieldPinAutoFillState extends State<TextFieldPinAutoFill> with CodeAu
     if (_textController.text != code) {
       _textController.value = TextEditingValue(text: code ?? '');
       if (widget.onCodeChanged != null) {
-        widget.onCodeChanged(code ?? '');
+        widget.onCodeChanged!(code ?? '');
       }
     }
   }
