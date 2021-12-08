@@ -57,6 +57,7 @@ class PinFieldAutoFill extends StatefulWidget {
   final Cursor? cursor;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
+  final Brightness brightness;
 
   const PinFieldAutoFill({
     Key? key,
@@ -72,6 +73,7 @@ class PinFieldAutoFill extends StatefulWidget {
     this.currentCode,
     this.autoFocus = false,
     this.codeLength = 6,
+    this.brightness = Brightness.light,
   }) : super(key: key);
 
   @override
@@ -101,6 +103,7 @@ class _PinFieldAutoFillState extends State<PinFieldAutoFill> with CodeAutoFill {
       controller: controller,
       textInputAction: widget.textInputAction,
       onSubmit: widget.onCodeSubmitted,
+      brightness: widget.brightness,
     );
   }
 
