@@ -100,7 +100,16 @@ public class SmsAutoFillPlugin implements MethodCallHandler {
                     @Override
                     public void onSuccess(Void aVoid) {
                         broadcastReceiver = new SmsBroadcastReceiver(new WeakReference<>(SmsAutoFillPlugin.this));
-                        activity.registerReceiver(broadcastReceiver, new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION));
+                        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+                        // Android 13+ (API 33) requires an explicit export flag for runtime receivers.
+                        // The SMS_RETRIEVED broadcast is sent by Google Play Services, so the receiver
+                        // must be exported, but restricted to the SmsRetriever SEND permission so only
+                        // GMS can deliver it.
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            activity.registerReceiver(broadcastReceiver, intentFilter, SmsRetriever.SEND_PERMISSION, null, Context.RECEIVER_EXPORTED);
+                        } else {
+                            activity.registerReceiver(broadcastReceiver, intentFilter);
+                        }
                         result.success(null);
                     }
                 });
